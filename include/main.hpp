@@ -26,8 +26,8 @@
 #define DHT_PIN GPIO_NUM_23
 #define BTN_PIN GPIO_NUM_2
 
-#define EXAMPLE_ESP_WIFI_SSID "Redmi"
-#define EXAMPLE_ESP_WIFI_PASS "syafiq07"
+#define EXAMPLE_ESP_WIFI_SSID "UWAW"
+#define EXAMPLE_ESP_WIFI_PASS "aassddff"
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5
 
 /* FreeRTOS event group to signal when we are connected*/

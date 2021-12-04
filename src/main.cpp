@@ -78,7 +78,7 @@ void button_task(void *pvParameter)
             ESP_LOGI(TAG, "interrupt");
             last_interrupt_time = interrupt_time;
             led_status = !led_status;
-            esp_mqtt_client_publish(global_client, "sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
+            esp_mqtt_client_publish(global_client, "/sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
             gpio_set_level(LED_PIN, led_status);
         }
     }
@@ -195,7 +195,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        msg_id = esp_mqtt_client_subscribe(client, "sisberhok/esp/toggle", 0);
+        msg_id = esp_mqtt_client_subscribe(client, "/sisberhok/esp/toggle", 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 
         break;
@@ -215,12 +215,25 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         break;
     case MQTT_EVENT_DATA:
+    {
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-        printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+        char *msg = (char *)malloc(event->topic_len);
+        sprintf(msg, "%.*s", event->topic_len, event->topic);
+
+
+
+        printf("%s\n", msg);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
-        led_status = !led_status;
-        gpio_set_level(LED_PIN, led_status);
+
+        if (strcmp(msg, "/sisberhok/esp/toggle") == 0)
+        {
+            led_status = !led_status;
+            gpio_set_level(LED_PIN, led_status);
+        }
         break;
+    }
+
+    
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
         if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
@@ -250,8 +263,8 @@ static void mqtt_app_start()
 
 static void mqtt_set_default()
 {
-    esp_mqtt_client_publish(global_client, "sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
-    esp_mqtt_client_publish(global_client, "sisberhok/esp/ipaddr", ip_address.c_str(), 0, 1, 0);
+    esp_mqtt_client_publish(global_client, "/sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
+    esp_mqtt_client_publish(global_client, "/sisberhok/esp/ipaddr", ip_address.c_str(), 0, 1, 0);
 }
 
 void app_main()
