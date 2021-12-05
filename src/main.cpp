@@ -229,6 +229,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         {
             led_status = !led_status;
             gpio_set_level(LED_PIN, led_status);
+            esp_mqtt_client_publish(global_client, "/sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
         }
         break;
     }
