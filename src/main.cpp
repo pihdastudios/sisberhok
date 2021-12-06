@@ -1,5 +1,10 @@
 #include "main.hpp"
 
+void update_lamp_status()
+{
+    esp_mqtt_client_publish(global_client, "/sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
+}
+
 static void log_error_if_nonzero(const char *message, int error_code)
 {
     if (error_code != 0)
@@ -33,30 +38,11 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
 
-        char buff[16];
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
-        sprintf(buff, IPSTR, IP2STR(&event->ip_info.ip));
-        ip_address = std::string(buff);
+        sprintf(ip_address, IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
-}
-
-void DHT_task(void *pvParameter)
-{
-    // DHT dht;
-    // dht.setDHTgpio(DHT_PIN);
-    // while (1)
-    // {
-    //     int ret = dht.readDHT();
-    //     if (ret == DHT_OK)
-    //     {
-    //         esp_mqtt_client_publish(global_client, "/esp32/dht/temperature", std::to_string(dht.getTemperature()).c_str(), 0, 1, 0);
-    //         esp_mqtt_client_publish(global_client, "/esp32/dht/humidity", std::to_string(dht.getHumidity()).c_str(), 0, 1, 0);
-
-    //         vTaskDelay(2000 / portTICK_RATE_MS);
-    //     }
-    // }
 }
 
 // interrupt service routine, called when the button is pressed
@@ -78,7 +64,7 @@ void button_task(void *pvParameter)
             ESP_LOGI(TAG, "interrupt");
             last_interrupt_time = interrupt_time;
             led_status = !led_status;
-            esp_mqtt_client_publish(global_client, "/sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
+            update_lamp_status();
             gpio_set_level(LED_PIN, led_status);
         }
     }
@@ -220,8 +206,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         char *msg = (char *)malloc(event->topic_len);
         sprintf(msg, "%.*s", event->topic_len, event->topic);
 
-
-
         printf("%s\n", msg);
         printf("DATA=%.*s\r\n", event->data_len, event->data);
 
@@ -229,12 +213,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         {
             led_status = !led_status;
             gpio_set_level(LED_PIN, led_status);
-            esp_mqtt_client_publish(global_client, "/sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
+            update_lamp_status();
         }
+        free(msg);
         break;
     }
 
-    
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
         if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
@@ -264,8 +248,8 @@ static void mqtt_app_start()
 
 static void mqtt_set_default()
 {
-    esp_mqtt_client_publish(global_client, "/sisberhok/esp/lamp", led_status ? "true" : "false", 0, 1, 0);
-    esp_mqtt_client_publish(global_client, "/sisberhok/esp/ipaddr", ip_address.c_str(), 0, 1, 0);
+    update_lamp_status();
+    esp_mqtt_client_publish(global_client, "/sisberhok/esp/ipaddr", ip_address, 0, 1, 0);
 }
 
 void app_main()
@@ -304,5 +288,4 @@ void app_main()
 
     // Create and start stats task
     xTaskCreate(&button_task, "button_task", 4096, nullptr, 20, &ISR);
-    // xTaskCreate(&DHT_task, "DHT_task", 2048, nullptr, 5, nullptr);
 }
