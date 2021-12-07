@@ -13,8 +13,8 @@
 
 #include "mqtt_client.h"
 
-#define LED_PIN GPIO_NUM_4
-#define MANUAL_PIN GPIO_NUM_4
+#define LED_PIN GPIO_NUM_21
+#define MANUAL_PIN GPIO_NUM_5
 // #define DHT_PIN GPIO_NUM_23
 #define BTN_PIN GPIO_NUM_2
 

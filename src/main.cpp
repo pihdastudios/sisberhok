@@ -88,6 +88,7 @@ void manual_task(void *pvParameter)
             ESP_LOGI(TAG, "interrupt manual");
             manual_status = gpio_get_level(MANUAL_PIN);
             last_interrupt_time = interrupt_time;
+            // gpio_set_level(LED_PIN, led_status);
             esp_mqtt_client_publish(global_client, "/sisberhok/esp/lamp", manual_status ^ led_status ? "true" : "false", 0, 1, 0);
         }
     }
@@ -109,7 +110,8 @@ void init_gpio()
     gpio_set_pull_mode(BTN_PIN, GPIO_PULLUP_ONLY);
 
     // enable interrupt on falling (1->0) edge for button pin
-    gpio_set_intr_type(BTN_PIN, GPIO_INTR_ANYEDGE);
+    gpio_set_intr_type(BTN_PIN, GPIO_INTR_NEGEDGE);
+    gpio_set_intr_type(MANUAL_PIN, GPIO_INTR_ANYEDGE);
 
     // Install the driver’s GPIO ISR handler service, which allows per-pin GPIO interrupt handlers.
     // install ISR service with default configuration
@@ -312,5 +314,5 @@ void app_main()
 
     // Create and start stats task
     xTaskCreate(&button_task, "button_task", 4096, nullptr, 20, &ISR);
-    xTaskCreate(&manual_task, "manual_task", 4096, nullptr, 20, &ISR);
+    // xTaskCreate(&manual_task, "manual_task", 4096, nullptr, 20, &MAN_ISR);
 }
