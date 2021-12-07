@@ -14,7 +14,7 @@
 #include "mqtt_client.h"
 
 #define LED_PIN GPIO_NUM_4
-#define DHT_PIN GPIO_NUM_23
+// #define DHT_PIN GPIO_NUM_23
 #define BTN_PIN GPIO_NUM_2
 
 #define EXAMPLE_ESP_WIFI_SSID "UWAW"
@@ -34,8 +34,6 @@ TaskHandle_t ISR = nullptr;
 static bool led_status = false;
 
 esp_mqtt_client_handle_t global_client = nullptr;
-
-static SemaphoreHandle_t mutex;
 
 static void event_handler(void *arg, esp_event_base_t event_base,
                           int32_t event_id, void *event_data);

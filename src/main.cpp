@@ -84,6 +84,7 @@ void init_gpio()
 
     // enable interrupt on falling (1->0) edge for button pin
     gpio_set_intr_type(BTN_PIN, GPIO_INTR_NEGEDGE);
+    // gpio_get_level();
 
     // Install the driver’s GPIO ISR handler service, which allows per-pin GPIO interrupt handlers.
     // install ISR service with default configuration
@@ -278,8 +279,6 @@ void app_main()
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-
-    mutex = xSemaphoreCreateMutex();
 
     init_gpio();
     init_wifi();
