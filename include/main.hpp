@@ -32,7 +32,7 @@ static EventGroupHandle_t s_wifi_event_group;
 #define WIFI_FAIL_BIT BIT1
 
 TaskHandle_t ISR = nullptr;
-TaskHandle_t MAN_ISR = nullptr;
+// TaskHandle_t MAN_ISR = nullptr;
 static bool led_status = false;
 static bool manual_status = false;
 
@@ -53,8 +53,8 @@ char ip_address[16];
 
 void IRAM_ATTR button_isr_handler(void *pvParameter);
 void button_task(void *pvParameter);
-void manual_task(void *pvParameter);
-void serial_task(void *pvParameter);
+// void manual_task(void *pvParameter);
+// void serial_task(void *pvParameter);
 void init_gpio();
 void init_wifi();
 
